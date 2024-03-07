@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Dijkstra’s Project by Godara</title>
+    <style>
+        body{
+            background-color: black;
+        }
+        main {
+            display: grid;
+            grid-template-columns: repeat(117, 15px);
+            grid-template-rows: repeat(55, 15px);
+            grid-gap: 0;
+        }
+        main > div {
+            background-color: lightgray;
+            width: 10px;
+            height: 10px;
+        }
+        .red {
+            background-color: orchid;
+        }
+        .start{
+            background-color: green !important;
+        }
+        .end{
+            background-color: red !important;
+        }
+        .obsticles{
+            background-color: black !important;
+        }
+        .scanned {
+            background-color: chartreuse !important;
+        }
+        .path {
+            background-color: blue !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid text-center bg-info p-2">
+        <h1 class="h1 text-danger p-2">Made by Godara Get in touch with me<span><a href="https://www.instagram.com/premlakshaygodara/" target="_blank" class="btn btn-sm btn-warning m-2">@premlakshaygodara</a></span></h1>
+        <p class="h5">This example shows us how Dijkstra’s Algorithm works</p>
+    <button onclick="learn()" class="btn btn-lg btn-danger mt-1">Learn Commands</button>
+    </div>
+    <main id="main" class="mt-2"></main>
+</body>
+<script>
+    function learn(){
+        alert(" Pres 'ALT + s' for starting Point \n Press 'ALT + e' for end point \n Keep Pressed 'CTRL' Key and move mouse to add obstacles \n Press 'ALT + r' to find the shortest path \n Press 'ALT + d' for reset the Programe");
+    }
+    let startElement = null;
+    let endElement = null;
+    document.addEventListener("keydown",(e)=>{
+        if(e.ctrlKey || e.altKey){
+            if(e.ctrlKey){
+                document.querySelector('.red').classList.add("obsticles");
+            }
+            if(e.key == "s"){
+                if(startElement){
+                    startElement.classList.remove("start");
+                }
+                startElement = document.querySelector('.red');
+                if(startElement){
+                    startElement.classList.add("start");
+                }
+                
+            }
+            if(e.key == "e"){
+                if(endElement){
+                    endElement.classList.remove("end");
+                }
+                endElement = document.querySelector('.red');
+                if(endElement){
+                    endElement.classList.add("end");
+                }
+            }
+            if(e.key == "r"){
+                if(startElement == null || endElement == null){
+                    alert("Please choose Start and End point");
+                }
+                makePath();
+            }
+            if(e.key == "d"){
+                if(startElement != null){
+                document.querySelector('.start').classList.remove('start');
+                }
+                if(endElement != null){
+                document.querySelector('.end').classList.remove('end');
+                }
+                const obsticles = document.querySelectorAll('.obsticles');
+                obsticles.forEach(obsticle => {
+                    obsticle.classList.remove("obsticles");
+                })
+                const scanned = document.querySelectorAll('.scanned');
+                scanned.forEach(obsticle => {
+                    obsticle.classList.remove("scanned");
+                })
+                const path = document.querySelectorAll('.path');
+                path.forEach(obsticle => {
+                    obsticle.classList.remove("path");
+                })
+                startElement = null;
+                endElement = null;
+            }
+        }
+    });
+    document.addEventListener("mousemove",(e)=>{
+        const hoveredElement = e.target;
+        if (hoveredElement.tagName === "DIV" && hoveredElement.parentNode === main) {
+            const divs = main.querySelectorAll("div");
+            divs.forEach(div => div.classList.remove("red"));
+            hoveredElement.classList.add("red");
+        }
+    })
+    const main = document.getElementById("main");
+    for (let i = 0; i <= 55; i++) {
+        for (let j = 0; j < 117; j++) {
+            const div = document.createElement('div');
+            main.appendChild(div);
+        }
+    }
+    async function makePath() {
+    const queue = [];
+    const distances = new Map();
+    const previous = new Map();
+    if (!startElement.classList.contains('obsticles')) {
+        queue.push(startElement);
+        distances.set(startElement, 0);
+        while (queue.length > 0) {
+            const currentNode = queue.shift();
+            if (currentNode === endElement) {
+                break;
+            }
+            const neighbors = getNeighbors(currentNode);
+            for (const neighbor of neighbors) {
+                if (!distances.has(neighbor) && !neighbor.classList.contains('obsticles')) {
+                    queue.push(neighbor);
+                    distances.set(neighbor, distances.get(currentNode) + 1);
+                    previous.set(neighbor, currentNode);
+                }
+            }
+            currentNode.classList.add('scanned');
+            await delay(10); 
+        }
+    }
+    let current = endElement;
+    while (current !== startElement) {
+        current.classList.add('path');
+        current = previous.get(current);
+        await delay(50); 
+    }
+    startElement.classList.add('path');
+}
+function getNeighbors(node) {
+    const neighbors = [];
+    const directions = [
+        { x: 1, y: 0 },
+        { x: -1, y: 0 },
+        { x: 0, y: 1 },
+        { x: 0, y: -1 }
+    ];
+    const nodeIndex = Array.from(node.parentNode.children).indexOf(node);
+    const numRows = 56;
+    const numCols = 117;
+    for (const dir of directions) {
+        const x = nodeIndex % numCols + dir.x;
+        const y = Math.floor(nodeIndex / numCols) + dir.y;
+        if (x >= 0 && x < numCols && y >= 0 && y < numRows) {
+            const neighbor = main.children[y * numCols + x];
+            if (!neighbor.classList.contains('obsticles') && !node.classList.contains('obsticles')) {
+                neighbors.push(neighbor);
+            }
+        }
+    }
+    return neighbors;
+}
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+</script>
+</html>
