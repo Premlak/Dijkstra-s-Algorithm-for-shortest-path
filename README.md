@@ -8,3 +8,6 @@ Practical example for Dijkstra's Algorithm for shortest path
 - Press 'alt + r' to Run the Algorithm 
 - Press 'alt + d' to reset the Environment
 
+## Documentation
+
+[Test live only workable on Desktop](http://godara.kesug.com/)
