@@ -55,68 +55,62 @@
     }
     let startElement = null;
     let endElement = null;
-    document.addEventListener("keydown",(e)=>{
-        if(e.ctrlKey || e.altKey){
-            if(e.ctrlKey){
-                document.querySelector('.red').classList.add("obsticles");
-            }
-            if(e.key == "s"){
-                if(startElement){
-                    startElement.classList.remove("start");
-                }
-                startElement = document.querySelector('.red');
-                if(startElement){
-                    startElement.classList.add("start");
-                }
-                
-            }
-            if(e.key == "e"){
-                if(endElement){
-                    endElement.classList.remove("end");
-                }
-                endElement = document.querySelector('.red');
-                if(endElement){
-                    endElement.classList.add("end");
-                }
-            }
-            if(e.key == "r"){
-                if(startElement == null || endElement == null){
-                    alert("Please choose Start and End point");
-                }
+    document.addEventListener("keydown", (e) => {
+        if (e.shiftKey) {
+          e.preventDefault();
+          switch (e.key.toLowerCase()) {
+            case "s":
+              if (startElement) {
+                startElement.classList.remove("start");
+              }
+              startElement = document.querySelector(".red");
+              if (startElement) {
+                startElement.classList.add("start");
+              }
+              break;
+            case "e":
+              if (endElement) {
+                endElement.classList.remove("end");
+              }
+              endElement = document.querySelector(".red");
+              if (endElement) {
+                endElement.classList.add("end");
+              }
+              break;
+            case "r":
+              if (!startElement || !endElement) {
+                alert("Please choose Start and End point");
+              } else {
                 makePath();
-            }
-            if(e.key == "d"){
-                if(startElement != null){
-                document.querySelector('.start').classList.remove('start');
-                }
-                if(endElement != null){
-                document.querySelector('.end').classList.remove('end');
-                }
-                const obsticles = document.querySelectorAll('.obsticles');
-                obsticles.forEach(obsticle => {
-                    obsticle.classList.remove("obsticles");
-                })
-                const scanned = document.querySelectorAll('.scanned');
-                scanned.forEach(obsticle => {
-                    obsticle.classList.remove("scanned");
-                })
-                const path = document.querySelectorAll('.path');
-                path.forEach(obsticle => {
-                    obsticle.classList.remove("path");
-                })
-                startElement = null;
-                endElement = null;
-            }
+              }
+              break;
+            case "d":
+              // Reset code
+              if (startElement) startElement.classList.remove("start");
+              if (endElement) endElement.classList.remove("end");
+              document.querySelectorAll(".obsticles, .scanned, .path").forEach(el => {
+                el.classList.remove("obsticles", "scanned", "path");
+              });
+              startElement = null;
+              endElement = null;
+              break;
+          }
         }
-    });
-    document.addEventListener("mousemove",(e)=>{
+      });
+
+      document.addEventListener("mousemove", (e) => {
         const hoveredElement = e.target;
         if (hoveredElement.tagName === "DIV" && hoveredElement.parentNode === main) {
-            const divs = main.querySelectorAll("div");
-            divs.forEach(div => div.classList.remove("red"));
-            hoveredElement.classList.add("red");
+          // Highlight hovered cell
+          main.querySelectorAll("div").forEach(div => div.classList.remove("red"));
+          hoveredElement.classList.add("red");
+          
+          // Add obstacle if Ctrl is pressed
+          if (e.ctrlKey) {
+            hoveredElement.classList.add("obsticles");
+          }
         }
-    })
+      });
     const main = document.getElementById("main");
     for (let i = 0; i <= 55; i++) {
         for (let j = 0; j < 117; j++) {
